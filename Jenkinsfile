@@ -1,6 +1,6 @@
 pipeline {
   agent any
-  tools { maven 'Maven-3.9' }
+  tools { maven 'Maven' }
   environment {
       PROJECT_DIR = 'student-management2'
   }
@@ -8,7 +8,9 @@ pipeline {
     stage('Checkout') { steps { git branch: 'main', url: 'https://github.com/THEasmatamarni/student-management2.git' } }
     stage('Build')    { steps {dir('student-management2'){ sh 'mvn clean package -DskipTests' } }}
     stage('Tests')    { steps {dir('student-management2'){ sh 'mvn test' } }}
-    stage('Sonar')    { steps {dir('student-management2'){ withSonarQubeEnv('sonar') { sh 'mvn sonar:sonar' } } }}
+    stage('Sonar')    { steps {dir('student-management2'){ withSonarQubeEnv('sonar') { sh '''
+                                                                                                           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar
+                                                                                                       '''} } }}
     stage('Nexus')    { steps {dir('student-management2'){ sh 'mvn deploy -DskipTests' } }}
     stage('Docker Build') {
             steps {dir('student-management2') { sh 'docker build -t asma2002fst/student-management:latest .' }}
@@ -25,8 +27,7 @@ pipeline {
   }
   post {
           always {
-              junit testResults: 'student-management/target/surefire-reports/*.xml',
-                    allowEmptyResults: true
+        junit '**/target/surefire-reports/*.xml'
           }
           success {
               echo 'Pipeline execute avec succes !'
