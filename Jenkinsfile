@@ -84,16 +84,20 @@ stage('DEPLOY TO AWS KUBERNETES') {
                     echo "Checking Kubernetes cluster..."
                     kubectl --kubeconfig="$KUBECONFIG" cluster-info
 
-                    echo "Deploying application..."
-                    kubectl --kubeconfig="$KUBECONFIG" apply -f deployment.yaml
+                    echo "Deploying MySQL..."
+                    kubectl --kubeconfig="$KUBECONFIG" apply -f k8s-eks/mysql.yaml
 
-                    echo "Deploying service..."
-                    kubectl --kubeconfig="$KUBECONFIG" apply -f service.yaml
+                    echo "Deploying Spring Boot application..."
+                    kubectl --kubeconfig="$KUBECONFIG" apply -f k8s-eks/app.yaml
 
-                    echo "Waiting for deployment..."
-                    kubectl --kubeconfig="$KUBECONFIG" rollout status deployment/student-management --timeout=180s
+                    echo "Waiting for MySQL deployment..."
+                    kubectl --kubeconfig="$KUBECONFIG" rollout status deployment/mysql --timeout=300s
+
+                    echo "Waiting for Student application deployment..."
+                    kubectl --kubeconfig="$KUBECONFIG" rollout status deployment/student-app --timeout=300s
 
                     echo "Checking Kubernetes resources..."
+                    kubectl --kubeconfig="$KUBECONFIG" get deployments
                     kubectl --kubeconfig="$KUBECONFIG" get pods
                     kubectl --kubeconfig="$KUBECONFIG" get services
                 '''
