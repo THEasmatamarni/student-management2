@@ -50,7 +50,7 @@ stage('Test AWS Credentials') {
 }
 }
 
-  }
+
   post {
           always {
         junit '**/target/surefire-reports/*.xml'
