@@ -28,21 +28,26 @@ pipeline {
 
 stage('Test AWS Credentials') {
     steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'awsCredentials',
-            usernameVariable: 'AWS_ACCESS_KEY_ID',
-            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-        )]) {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'awsCredentials',
+                usernameVariable: 'AWS_ACCESS_KEY_ID',
+                passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+            ),
+            string(
+                credentialsId: 'awsSessionToken',
+                variable: 'AWS_SESSION_TOKEN'
+            )
+        ]) {
             sh '''
                 set +x
                 export AWS_DEFAULT_REGION=us-east-1
-
                 echo "Testing AWS authentication..."
-
                 aws sts get-caller-identity
             '''
         }
     }
+}
 }
 
   }
